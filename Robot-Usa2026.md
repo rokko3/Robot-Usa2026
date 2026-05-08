@@ -1,6 +1,9 @@
-# Documento tecnico: entradas, magnitudes y algoritmos de la simulacion
+# Sistemas Inteligentes: C2 - Segunda Entrega Proyecto Final
 
-## 1) Entradas que usa la simulacion y su magnitud
+# Hecho por: William Steban Alfonso, Carlos Cardona Pulido y Kevin Andres Guevara
+# Grupo: Endemeridos
+
+## Entradas que usa la simulacion y su magnitud
 
 Este documento describe la version activa del notebook `Robot_Futbol_Lobo_Gris (1).ipynb` (celda principal con `SimuladorFutbol`).
 
@@ -41,10 +44,8 @@ voltaje acotado a [0.3, 3.0]
 distancia_estimada = (3.0 - voltaje)*80/2.7
 distancia_estimada acotada a [4, 80]
 ```
+## Se utiliza para la triangulacion y para la posesion del balon
 
-Uso principal:
-- Triangulacion (`r1`, `r2`)
-- Posesion (con umbral de posesion)
 
 ### 1.4 Sensor color (RGB sintetico)
 
@@ -56,7 +57,7 @@ frec_g = max(1,  85 + 35*proximidad + N(0,6))
 frec_b = max(1, 110 - 55*proximidad + N(0,6))
 ```
 
-Score naranja:
+Score naranja (deteccion online en simulacion):
 ```text
 total = r + g + b
 r_norm = r/total
@@ -109,7 +110,7 @@ rpm = (velocidad_cm_s * 60) / circunferencia_rueda
 
 Se genero un dump de ejemplo con 30 filas en:
 
-`C:\Users\wsteb\Downloads\dump_rgb_regresion_30_muestras.csv`
+`C:\Users\wsteb\OneDrive\Documentos\Proyectos\2026-01\RobotUsa\datos_regresion_sensor_color.csv` (tomando las primeras filas)
 
 Columnas:
 - `frec_r, frec_g, frec_b` (features RGB)
@@ -151,10 +152,44 @@ Y la etiqueta binaria asociada es:
 etiqueta_naranja = 1 si y > 0.50, en otro caso 0
 ```
 
-Nota: para entrenar regresion multivariable, se pueden usar como `X`:
+Nota: para entrenar regresion multivariable, se usan como `X`:
 `[frec_r, frec_g, frec_b, distancia_real_cm, balon_presente]`
 y como `y`:
 `score_naranja_objetivo`.
+
+### 2.2 Entrenamiento de la regresion multiple (implementado en el notebook)
+
+El notebook ahora entrena un modelo de regresion lineal multiple sobre ese dataset sintetico:
+
+```text
+X = [frec_r, frec_g, frec_b, distancia_real_cm, balon_presente]
+y = score_naranja_objetivo
+```
+
+Procedimiento:
+1. Mezcla aleatoria con semilla fija (`42`).
+2. Particion `80%` entrenamiento y `20%` prueba.
+3. Ajuste por minimos cuadrados con `numpy.linalg.lstsq`:
+   - se agrega termino de sesgo (intercepto)
+   - se estiman `intercepto` y `coeficientes`.
+4. Prediccion en test:
+   - `y_pred = intercepto + X_test @ coeficientes`
+   - salida acotada a `[0,1]`.
+5. Evaluacion:
+   - `R2`, `MAE`, `RMSE`.
+
+Metrica obtenida en la ultima corrida:
+- `R2 (test) = 0.9597`
+- `MAE (test) = 0.0136`
+- `RMSE (test) = 0.0168`
+
+Coeficientes estimados en la ultima corrida:
+- Intercepto: `0.363534`
+- `frec_r`: `+0.001162`
+- `frec_g`: `+0.000064`
+- `frec_b`: `-0.001885`
+- `distancia_real_cm`: `+0.000024`
+- `balon_presente`: `+0.009956`
 
 ---
 
@@ -223,8 +258,6 @@ Esto produce cobertura espacial alrededor de zonas centrales desplazadas.
 ## 5) Archivos relevantes
 
 - Notebook principal:
-  - `C:\Users\wsteb\Downloads\Robot_Futbol_Lobo_Gris (1).ipynb`
+  - `C:\Users\wsteb\OneDrive\Documentos\Proyectos\2026-01\RobotUsa\Robot_Futbol_Lobo_Gris (1).ipynb`
 - Dataset completo para regresion:
-  - `C:\Users\wsteb\Downloads\datos_regresion_sensor_color.csv`
-- Dump de ejemplo RGB/regresion (30 filas):
-  - `C:\Users\wsteb\Downloads\dump_rgb_regresion_30_muestras.csv`
+  - `C:\Users\wsteb\OneDrive\Documentos\Proyectos\2026-01\RobotUsa\datos_regresion_sensor_color.csv`

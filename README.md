@@ -57,7 +57,7 @@ frec_g = max(1,  85 + 35*proximidad + N(0,6))
 frec_b = max(1, 110 - 55*proximidad + N(0,6))
 ```
 
-Score naranja (deteccion online en simulacion):
+Score naranja:
 ```text
 total = r + g + b
 r_norm = r/total
@@ -72,7 +72,7 @@ color_detectado = score_naranja > umbral
 umbral inicial = 0.50
 ```
 
-Auto-calibracion (si hay evidencia fuerte):
+Auto-calibracion:
 - condicion: `sharp_distancia <= 25` y `color_detectado == True`
 - actualizacion:
 ```text
@@ -86,7 +86,7 @@ alpha = 0.08
 | Parametro | Valor |
 |---|---:|
 | `pulsos_por_revolucion` | 12 |
-| radio rueda (implicito) | 2.3 cm |
+| radio rueda  | 2.3 cm |
 | circunferencia | `2*pi*2.3` cm |
 
 Relacion:
@@ -106,17 +106,15 @@ rpm = (velocidad_cm_s * 60) / circunferencia_rueda
 
 ---
 
-## 2) Dump de datos RGB para regresion multivariable
+## 2)regresion multivariable para deteccion de color
 
-Se genero un dump de ejemplo con 30 filas en:
 
-`C:\Users\wsteb\OneDrive\Documentos\Proyectos\2026-01\RobotUsa\datos_regresion_sensor_color.csv` (tomando las primeras filas)
 
 Columnas:
 - `frec_r, frec_g, frec_b` (features RGB)
 - `distancia_real_cm` (feature adicional)
 - `balon_presente` (feature binaria de contexto)
-- `score_naranja_objetivo` (target continuo `y`)
+- `score_naranja_objetivo` (`y`)
 - `etiqueta_naranja` (target binario derivado)
 
 Ejemplo (primeras 10 filas):
@@ -152,14 +150,13 @@ Y la etiqueta binaria asociada es:
 etiqueta_naranja = 1 si y > 0.50, en otro caso 0
 ```
 
-Nota: para entrenar regresion multivariable, se usan como `X`:
+Variables independientes `X`:
 `[frec_r, frec_g, frec_b, distancia_real_cm, balon_presente]`
-y como `y`:
+Variable dependiente `y`:
 `score_naranja_objetivo`.
 
-### 2.2 Entrenamiento de la regresion multiple (implementado en el notebook)
+### 2.2 Entrenamiento de la regresion multiple 
 
-El notebook ahora entrena un modelo de regresion lineal multiple sobre ese dataset sintetico:
 
 ```text
 X = [frec_r, frec_g, frec_b, distancia_real_cm, balon_presente]
@@ -193,7 +190,7 @@ Coeficientes estimados en la ultima corrida:
 
 ---
 
-## 3) Triangulacion de posicion del balon (conceptual)
+## 3) Triangulacion de posicion del balon 
 
 ### 3.1 Entradas necesarias
 
@@ -244,7 +241,6 @@ radio = 45 (Robot A) o 55 (Robot B)
 tx = cx + radio*cos(angulo)
 ty = cy + radio*sin(0.9*angulo)
 ```
-Esto produce cobertura espacial alrededor de zonas centrales desplazadas.
 
 ### 4.3 Adaptacion y memoria
 
@@ -254,10 +250,3 @@ Esto produce cobertura espacial alrededor de zonas centrales desplazadas.
 - **Auto-calibracion de color**: ajusta dinamicamente el umbral para compensar variaciones de lectura.
 
 ---
-
-## 5) Archivos relevantes
-
-- Notebook principal:
-  - `C:\Users\wsteb\OneDrive\Documentos\Proyectos\2026-01\RobotUsa\Robot_Futbol_Lobo_Gris (1).ipynb`
-- Dataset completo para regresion:
-  - `C:\Users\wsteb\OneDrive\Documentos\Proyectos\2026-01\RobotUsa\datos_regresion_sensor_color.csv`

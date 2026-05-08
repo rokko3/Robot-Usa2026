@@ -31,7 +31,7 @@ Este documento describe la version activa del notebook `Robot_Futbol_Lobo_Gris (
 ### 1.3 Sensor Sharp (distancia)
 
 Parametros:
-- `rango_min = 4 cm`
+- `rango_min = 10 cm`
 - `rango_max = 80 cm`
 - ruido de voltaje: `N(0, 0.05)`
 
@@ -250,3 +250,7 @@ ty = cy + radio*sin(0.9*angulo)
 - **Auto-calibracion de color**: ajusta dinamicamente el umbral para compensar variaciones de lectura.
 
 ---
+### 5 Ejemplo de ejecuciones
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
